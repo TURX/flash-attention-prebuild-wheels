@@ -21,16 +21,20 @@ EXCLUDE = [
     {"torch-version": "2.9.0", "python-version": "3.9"},
 ]
 
+# pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+
 LINUX_MATRIX = {
-    "flash-attn-version": ["2.6.3", "2.7.4.post1", "2.8.3"],
-    "python-version": ["3.10", "3.11", "3.12", "3.13"],
+    "flash-attn-version": ["2.8.3"],
+    "python-version": ["3.12"],
     "torch-version": [
+        "2.6.0",
         # "2.5.1", "2.6.0", "2.7.1", "2.8.0",
-        "2.9.0",
+        # "2.9.0",
     ],
     "cuda-version": [
+        "12.4.1",
         # "12.4.1", "12.6.3", "12.8.1", "12.9.1",
-        "13.0.1",
+        # "13.0.1",
     ],
 }
 
@@ -60,11 +64,12 @@ def main():
     print(
         json.dumps(
             {
-                # "linux": LINUX_MATRIX,
-                "linux": False,
+                "linux": LINUX_MATRIX,
+                # "linux": False,
                 # "linux_self_hosted": LINUX_SELF_HOSTED_MATRIX,
                 "linux_self_hosted": False,
-                "windows": WINDOWS_MATRIX,
+                # "windows": WINDOWS_MATRIX,
+                "windows": False,
                 # "windows": False,
                 # "windows_code_build": WINDOWS_CODEBUILD_MATRIX,
                 "windows_code_build": False,

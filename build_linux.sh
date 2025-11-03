@@ -7,12 +7,14 @@ FLASH_ATTN_VERSION=$1
 PYTHON_VERSION=$2
 TORCH_VERSION=$3
 CUDA_VERSION=$4
+FA3_ENABLE=$5
 
 echo "Building Flash Attention with parameters:"
-echo "  Flash-Attention: $FLASH_ATTN_VERSION"
+echo "  Flash-Attention: $FLASH_ATTN_VERSION"  
 echo "  Python: $PYTHON_VERSION"
 echo "  PyTorch: $TORCH_VERSION"
-echo "  CUDA: $CUDA_VERSION"
+echo "  CUDA: $CUDA_VERSION"  
+echo "  FA3 Enable: $FA3_ENABLE"
 
 # Set CUDA and PyTorch versions
 MATRIX_CUDA_VERSION=$(echo $CUDA_VERSION | awk -F \. {'print $1 $2'})
@@ -41,14 +43,29 @@ python -c "import torch; print('CUDA:', torch.version.cuda)"
 python -c "from torch.utils import cpp_extension; print(cpp_extension.CUDA_HOME)"
 
 # Checkout flash-attn
-echo "Checking out flash-attention v$FLASH_ATTN_VERSION..."
-git clone https://github.com/Dao-AILab/flash-attention.git -b "v$FLASH_ATTN_VERSION"
+if [ ! -d "flash-attention" ]; then
+  echo "Checking out flash-attention v$FLASH_ATTN_VERSION..."
+  git clone https://github.com/Dao-AILab/flash-attention.git -b "v$FLASH_ATTN_VERSION"
+fi
 
-# Build wheels
-echo "Building wheels..."
-cd flash-attention
-FLASH_ATTENTION_FORCE_BUILD=TRUE python setup.py bdist_wheel --dist-dir=dist
-base_wheel_name=$(basename $(ls dist/*.whl | head -n 1))
-wheel_name=$(echo $base_wheel_name | sed "s/$FLASH_ATTN_VERSION/$FLASH_ATTN_VERSION+cu${MATRIX_CUDA_VERSION}torch${MATRIX_TORCH_VERSION}/")
-mv -v dist/$base_wheel_name dist/$wheel_name
-echo "Built wheel: $wheel_name"
+if [ "$FA3_ENABLE" != "true" ]; then
+  # Build wheels for FA2
+  echo "Building wheels..."
+  cd flash-attention
+  FLASH_ATTENTION_FORCE_BUILD=TRUE python setup.py bdist_wheel --dist-dir=dist
+  base_wheel_name=$(basename $(ls dist/*.whl | head -n 1))
+  wheel_name=$(echo $base_wheel_name | sed "s/$FLASH_ATTN_VERSION/$FLASH_ATTN_VERSION+cu${MATRIX_CUDA_VERSION}torch${MATRIX_TORCH_VERSION}/")
+  mv -v dist/$base_wheel_name dist/$wheel_name
+  echo "[FA2] Built wheel: $wheel_name"
+fi
+
+if [ "$FA3_ENABLE" == "true" ]; then
+  # Build wheels for FA3
+  echo "Building wheels for FA3..."
+  cd flash-attention/hopper
+  FLASH_ATTENTION_FORCE_BUILD=TRUE python setup.py bdist_wheel --dist-dir=dist
+  base_wheel_name=$(basename $(ls dist/*.whl | head -n 1))
+  wheel_name=$(echo $base_wheel_name | sed "s/$FLASH_ATTN_VERSION/$FLASH_ATTN_VERSION+cu${MATRIX_CUDA_VERSION}torch${MATRIX_TORCH_VERSION}/")
+  mv -v dist/$base_wheel_name dist/$wheel_name
+  echo "[FA3] Built wheel: $wheel_name"
+fi
