@@ -36,6 +36,7 @@ LINUX_MATRIX = {
         # "12.4.1", "12.6.3", "12.8.1", "12.9.1",
         # "13.0.1",
     ],
+    "fa3-enable": [True, False],
 }
 
 LINUX_SELF_HOSTED_MATRIX = {

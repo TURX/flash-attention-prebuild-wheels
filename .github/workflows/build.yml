@@ -47,12 +47,14 @@ jobs:
         torch-version: ${{ fromjson(needs.create_matrix.outputs.matrix).linux.torch-version }}
         cuda-version: ${{ fromjson(needs.create_matrix.outputs.matrix).linux.cuda-version }}
         exclude: ${{ fromjson(needs.create_matrix.outputs.matrix).exclude }}
+        fa3-enable: ${{ fromjson(needs.create_matrix.outputs.matrix).linux.fa3-enable }}
     uses: ./.github/workflows/build_linux.yml
     with:
       flash-attn-version: ${{ matrix.flash-attn-version }}
       python-version: ${{ matrix.python-version }}
       torch-version: ${{ matrix.torch-version }}
       cuda-version: ${{ matrix.cuda-version }}
+      fa3-enable: ${{ matrix.fa3-enable }}
     secrets: inherit
 
   build_wheels_linux_self_hosted:
